@@ -4,17 +4,18 @@ print("Sending to IFTTT")
 
 blink(0, 0, 255)
 
-local key
+local key = "", secret = ""
 if file.open("config.txt", "r") then
     key = file.readline()
+    secret = file.readline()
 else
     return
 end
 
 conn = nil
-conn=net.createConnection(net.TCP, 0) 
+conn=net.createConnection(net.TCP, 0)
 
-conn:on("receive", function(conn, payload) 
+conn:on("receive", function(conn, payload)
     --Shutdown!
     print("Let's shutdown");
     tmr.stop(TIMER_LED)
@@ -25,22 +26,24 @@ conn:on("receive", function(conn, payload)
     tmr.alarm(0, 2000, 1, function()
         reset()
     end)
-     
-end) 
-     
-conn:on("connection", function(conn, payload) 
+
+end)
+
+conn:on("connection", function(conn, payload)
     print("Key:" .. key)
-    conn:send("GET /trigger/button/with/key/" .. key
-        .." HTTP/1.1\r\n" 
+    conn:send("POST /trigger/button/with/key/" .. key
+        .." HTTP/1.1\r\n"
         .."Host: maker.ifttt.com\r\n"
-        .."Accept: */*\r\n" 
-        .."User-Agent: Mozilla/4.0 (compatible; esp8266 Lua; Windows NT 5.1)\r\n" 
-        .."\r\n")
-    print("IFTTT request sent. Goodbye") 
+        .."Accept: */*\r\n"
+        .."User-Agent: Mozilla/4.0 (compatible; esp8266 Lua; Windows NT 5.1)\r\n"
+        .."Content-type: application/json\r\n"
+        .."\r\n"
+        ..cjson.encode({secret=secret, chip=node.chipid()}))
+    print("IFTTT request sent. Goodbye")
     blink(0, 255, 0)
-end) 
-                                       
-conn:dns("maker.ifttt.com",function(conn,ip) 
+end)
+
+conn:dns("maker.ifttt.com",function(conn,ip)
     if (ip) then
         print("We can connect to " .. ip)
         conn:connect(80,ip)

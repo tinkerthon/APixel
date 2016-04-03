@@ -25,6 +25,10 @@
                 <label for="key">The key for IFTTT</label>
                 <input type="text" id="key" name="key" value="">
                 </p>
+                <p>
+                <label for="key">The (optional) application secret</label>
+                <input type="text" id="secret" name="secret" value="">
+                </p>
                 <p> <button type="submit">Submit</button> </p>
             </fieldset>
         </form>

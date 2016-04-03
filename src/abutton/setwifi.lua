@@ -9,7 +9,7 @@ function listap(t)
     end
 end
 
-function saveConfig(client) 
+function saveConfig(client)
     restarting = "<html><body style='width:90%;margin-left:auto;margin-right:auto;background-color:LightGray;'><h1>Restarting...You may close this window.</h1></body></html>"
     client:send(restarting);
     client:close();
@@ -17,18 +17,22 @@ function saveConfig(client)
         local ssid = _GET.dssid
         local password = ""
         local key = ""
+        local secret = ""
         if (_GET.ssid) then
             ssid = _GET.ssid
         end
         if (_GET.password) then
             password = _GET.password
         end
+        if (_GET.secret) then
+            secret = _GET.secret
+        end
         if _GET.key then
-            print("Saving key")
+            print("Saving key & secret")
             key = _GET.key
             file.remove("config.txt")
             file.open("config.txt", "w")
-            file.write(key)
+            file.write(key.."\n"..secret)
             file.flush()
             file.close()
         end
@@ -79,7 +83,7 @@ srv:listen(80,function(conn)
         if path == "/favicon.ico" then
             conn:send("HTTP/1.1 404 file not found")
             return
-        end   
+        end
 
         if path == "/pure.css" then
             staticFile = "pure.css"
@@ -99,17 +103,17 @@ srv:listen(80,function(conn)
     end)
 
     local offset = 0
-    conn:on("sent", function(client) 
+    conn:on("sent", function(client)
         if staticFile == nil then
             return
         end
 
         print("sent")
         if offset >= 0 then
-            file.open(staticFile, "r") 
+            file.open(staticFile, "r")
             file.seek("set", offset)
             local line = file.read(512)
-            file.close();      
+            file.close();
             if line then
                 client:send(line)
                 offset = offset + 512
